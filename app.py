@@ -1,11 +1,9 @@
-import logging
 import os
 from pathlib import Path
 
 from flask import Flask, render_template, abort
 
 app = Flask(__name__)
-logging.basicConfig(level=logging.DEBUG, filename='debug.log')
 
 
 @app.route("/")
