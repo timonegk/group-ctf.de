@@ -16,7 +16,7 @@ def index():
 
 
 @app.route("/<path:path_str>/")
-def content(path_str):
+def content(path_str: str):
     path = BASE_DIR / "content" / path_str
     if path.is_dir():
         path = path / "index.md"
@@ -28,7 +28,8 @@ def content(path_str):
     if (BASE_DIR / "content").resolve() not in path.resolve().parents:
         abort(404)
     md_text = path.read_text()
-    return render_template("content.md", md_text=md_text)
+
+    return render_template("content.md", md_text=md_text, title_prefix=path_str.rsplit("/")[-1].capitalize())
 
 
 if __name__ == "__main__":
