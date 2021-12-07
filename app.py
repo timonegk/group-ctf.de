@@ -25,7 +25,7 @@ def content(path_str):
     if not path.is_file():
         abort(404)
     # Assert file is in content directory
-    if BASE_DIR / "content" not in path.parents:
+    if (BASE_DIR / "content").resolve() not in path.resolve().parents:
         abort(404)
     md_text = path.read_text()
     return render_template("content.md", md_text=md_text)
