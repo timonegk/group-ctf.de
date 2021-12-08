@@ -1,7 +1,8 @@
 // vim: set filetype=groovy:
 library changelog: false, identifier: 'github.com/ftsell/jenkins-pipeline-library@main', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: '', remote: 'https://github.com/ftsell/jenkins-pipeline-library.git', traits: [gitBranchDiscovery()]])
 
-def image_name = "registry.finn-thorben.me/group-ctf-de"
+def imageName = "registry.finn-thorben.me/group-ctf-de"
+def imageDigest
 
 pipeline {
     agent {
@@ -25,15 +26,27 @@ pipeline {
                 }
             }
         }
-        stage("Container") {
+        stage("Create Container") {
             steps  {
                 container("podman") {
-                    buildContainer(image_name)
+                    buildContainer(imageName)
                     script {
                         if (env.BRANCH_IS_PRIMARY == "true") {
-                            uploadContainer(image_name, "registry.finn-thorben.me", "registry-credentials")
+                            uploadContainer(imageName, "registry.finn-thorben.me", "registry-credentials")
                         }
                     }
+                }
+            }
+        }
+        stage("Deploy") {
+            steps {
+                container("podman") {
+                    script {
+                        imageDigest = fetchImageDigest(imageName, "registry.finn-thorben.me", "registry-credentials")
+                    }
+                }
+                container("kustomize") {
+                    deployContainer("group-ctf-de", imageName, imageDigest)
                 }
             }
         }
